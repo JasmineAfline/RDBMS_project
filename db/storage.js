@@ -1,12 +1,17 @@
 const fs = require("fs");
+const path = require("path");
 
-function save(db) {
-    fs.writeFileSync("data/database.json", JSON.stringify(db, null, 2));
+const DB_FILE = path.join(__dirname, "../data/database.json");
+
+function saveDatabase(tables) {
+  fs.writeFileSync(DB_FILE, JSON.stringify(tables, null, 2));
 }
 
-function load() {
-    if (!fs.existsSync("data/database.json")) return null;
-    return JSON.parse(fs.readFileSync("data/database.json"));
+function loadDatabase() {
+  if (!fs.existsSync(DB_FILE)) {
+    return {};
+  }
+  return JSON.parse(fs.readFileSync(DB_FILE, "utf-8"));
 }
 
-module.exports = { save, load };
+module.exports = { saveDatabase, loadDatabase };

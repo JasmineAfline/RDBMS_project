@@ -1,32 +1,47 @@
 const Table = require("./Table");
+const { saveDatabase, loadDatabase } = require("./storage");
 
 class Database {
   constructor() {
     this.tables = {};
+
+    // Load persisted data
+    const data = loadDatabase();
+    for (const tableName in data) {
+      const tableData = data[tableName];
+      const table = new Table(tableName, tableData.schema);
+      table.rows = tableData.rows;
+      this.tables[tableName] = table;
+    }
   }
 
-  // Create a new table
-  createTable(name, columns) {
+  createTable(name, schema) {
     if (this.tables[name]) {
       throw new Error(`Table "${name}" already exists`);
     }
-    const table = new Table(name, columns);
-    this.tables[name] = table;
-    return table;
+
+    this.tables[name] = new Table(name, schema);
+    this.persist();
   }
 
-  // Get a table by name
   getTable(name) {
-    const table = this.tables[name];
-    if (!table) {
+    if (!this.tables[name]) {
       throw new Error(`Table "${name}" not found`);
     }
-    return table;
+    return this.tables[name];
   }
 
-  // List all tables
-  listTables() {
-    return Object.keys(this.tables);
+  persist() {
+    const data = {};
+
+    for (const name in this.tables) {
+      data[name] = {
+        schema: this.tables[name].schema,
+        rows: this.tables[name].rows
+      };
+    }
+
+    saveDatabase(data);
   }
 }
 

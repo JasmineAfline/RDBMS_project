@@ -1,3 +1,6 @@
+const Database = require("./Database");
+
+
 class Table {
   constructor(name, columns) {
     this.name = name;            // table name
